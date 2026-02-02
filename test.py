@@ -6,6 +6,7 @@ import sys
 import os
 from tqdm import tqdm
 from fake_useragent import UserAgent
+# TODO: 正则化结果
 # TODO：模块化
 # TODO：日志
 # TODO：错误重试
@@ -28,7 +29,8 @@ headers ={
     'Referer' : 'https://www.bqg778.cc/',
     'Accept' : 'application/json, text/javascript, /; q=0.01',
     'Accept-Language': 'zh-CN,zh;q=0.9',
-    'X-Requested-With': 'XMLHttpRequest'
+    'X-Requested-With': 'XMLHttpRequest',
+    'Cookie' : 'Hm_lvt_9c5f07b6ce20e3782eac91ed47d1421c=1769665977; HMACCOUNT=8B635B4223B07B07; siteurl=apibi.cc; Hm_lpvt_9c5f07b6ce20e3782eac91ed47d1421c=1769956460'
 }
 url_search = 'https://apibi.cc/api/search'
 url_book = 'https://apibi.cc/api/book'
@@ -74,16 +76,31 @@ except Exception as e:
 time.sleep(2)
 
 print('开始获取每章内容')
-
+headers_ = {
+    "Accept": "application/json, text/javascript, */*; q=0.01",
+    "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6",
+    "Cache-Cntrol": "no-cache",
+    "Origin": "https://www.bqg778.cc",
+    "Pragma": "no-cache",
+    "Referer": "https://www.bqg778.cc/",
+    "Sec-Ch-Ua": '"Microsoft Edge";v="143", "Chromium";v="143", "Not A(Brand";v="24"',
+    "Sec-Ch-Ua-Mobile": "?0",
+    "Sec-Ch-Ua-Platform": '"Windows"',
+    "Sec-Fetch-dest": "empty",
+    "Sec-Fetch-Mode": "cors",
+    "Sec-Fetch-Site": "cross-site",
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36 Edg/143.0.0.0"
+}
 # 创建文件夹
 os.makedirs(f'saved/{book_name}', exist_ok= True)
 
 for i in tqdm(range(440,chapter + 1), desc= '下载进度', unit= '章'):
 
-    try:
+
         params_chapter['chapterid'] = f'{i}'
 
-        res_chaper = requests.get(url= url_chapter, params= params_chapter, timeout= timeout)
+        res_chaper = requests.get(url= url_chapter, params= params_chapter, timeout= timeout, headers= headers_)
+
         dict_res_chaper = dict(json.loads(res_chaper.text))
 
         text = dict_res_chaper['txt']
@@ -91,12 +108,7 @@ for i in tqdm(range(440,chapter + 1), desc= '下载进度', unit= '章'):
 
         with open(f'saved/{book_name}/{i}{chapter_name}.txt', 'w', encoding= 'utf-8') as f:
             f.write(text)
-    except Exception as e:
-        print(f'第{i}个章节获取失败')
 
-    time.sleep(random.uniform(2,3))
 
 print('程序执行完毕')
 
-
-# 744、1220、1321、1390、1399、1400
